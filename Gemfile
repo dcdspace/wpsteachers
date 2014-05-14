@@ -7,3 +7,4 @@ gem 'sinatra'
 gem 'sequel'
 gem 'sqlite3', :group => :development
 gem 'pg'
+gem 'rake'
