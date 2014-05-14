@@ -1,0 +1,43 @@
+<style>
+    body {
+        background-image: url('pics/network.jpg');
+    }
+</style>
+<!--<div align="center" class="main" id="login">
+  <form name="login" method="post" action="<%=url('/login') %>">
+    <label for="subject">Username:</label> <input placeholder="dylan" class="form-control" type="text" name="subject"><br />
+    <label for="author">Password:</label> <input placeholder="1234" class="form-control" type="password" name="author"><br />
+    <input type="submit" class="btn btn-success" value="Submit">
+  </form>
+
+</div> -->
+<nav style="background-color: #090677; color: #ffffff" class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin: 0px;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a style="color: #ffffff" class="navbar-brand" href="/">DCD Net</a>
+    </div>
+    <div class="nav navbar-nav navbar-right">
+      <a style="color: gold" class="navbar-brand emailLink" href="/auth/google">Sign into Google</a>
+
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+  </div>
+  <hr style="margin: 0px; padding: 0px; border: 3px solid white" />
+  <!-- /.container-fluid -->
+</nav>
+
+<CENTER>
+  <div id="welcome">
+    <div id="welcomeContent">
+      <h2>DCD Net</h2>
+      <hr />
+      <p>
+        DCD Net is a social network created for Mr. Dewey's web programming class. The assignment was to make a project that demonstrated basic functionality of an ORM. With this social network, you can set up a profile with all of your info, create your own blog filled with your stories, and friend other users.
+
+      </p>
+      <button align="center" class="btn btn-primary btn-lg" onclick="window.location='/auth/google';" value="Sign into Google">Sign into Google</button>
+    </div>
+  </div>
+  <!--<button align="center" class="btn btn-info btn-lg" onclick="window.location='/auth/google';" value="Sign into Google">Sign into Google</button>-->
+</CENTER>

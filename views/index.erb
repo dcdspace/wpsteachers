@@ -1,0 +1,254 @@
+<!-- NAVBAR -->
+<nav style="background-color: #f5f5f5" class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin: 0px;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" style="color: navy" href="/">WPS Rate My Teachers</a>
+
+    </div>
+
+    <% if logged_in %>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a style="color: #a20fdb" href="#" class="dropdown-toggle" data-toggle="dropdown"><%= result.data.email %><b class="caret"></b></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#"><span class="glyphicon glyphicon-user"></span> <%= result.data.name %></a></li>
+              <li class="divider"></li>
+              <li><a href="/logout"><span class="glyphicon glyphicon-off"></span> Log Out</a></li>
+            </ul>
+          </li>
+        </ul>
+    <% else %>
+
+        <div class="nav navbar-nav navbar-right">
+          <a class="navbar-brand emailLink" href="/auth/google">Sign into Google</a>
+
+        </div>
+    <% end %>
+    <CENTER>
+      <input align="center" class="form-control nav navbar-nav search" id="search_input" autocomplete="off" placeholder="Type to search" style="border: 2px solid blue">
+    </CENTER>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+  </div><!-- /.container-fluid -->
+</nav>
+<!--FOR SOMEONE GRADING: THIS JS WAS NECESSARY TO BE IN ERB FILE BECAUSE I NEEDED TO USE RUBY VARIABLES IN IT. OTHERWISE I WOULD HAVE PUT IT IN APP.JS WITH EVERYTHING ELSE -->
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $('input.search').typeahead({
+            name: 'search',
+            local: <%= names %>,
+        });
+        jQuery(".panelContent").hide();
+        //toggle the componenet with class msg_body
+        var value = 0
+
+        jQuery(".panel-heading").click(function()
+        {
+            jQuery(".panelContent").slideUp(1000);
+            jQuery(".arrow-down").rotate({ animateTo:0})
+
+            //jQuery(this).next(".panelContent").slideToggle(500);
+
+            if (jQuery(this).next(".panelContent").is(':visible')) {
+                jQuery(this).next(".panelContent").slideUp(1000);
+                value = 0;
+
+            }
+            else {
+                jQuery(this).next(".panelContent").slideDown(800);
+
+                value = 180;
+
+            }
+            jQuery(this).find(".arrow-down").rotate({ animateTo:value})
+        });
+        var numberOfItems = <%= data.count %>;
+        var rainbow = new Rainbow();
+        rainbow.setNumberRange(1, numberOfItems);
+        rainbow.setSpectrum('#375a7f', '#B40404');
+        var s = '';
+        for (var i = 0; i <= numberOfItems; i++) {
+            var hexColour = rainbow.colourAt(i);
+
+            s += '#' + hexColour + ', ';
+            $('#panel' + i).css("background-color", '#' + hexColour);
+
+
+        }
+        var rainbowReverse = new Rainbow();
+        rainbowReverse.setNumberRange(1, numberOfItems);
+        rainbowReverse.setSpectrum('red', 'yellow');
+        var sReverse = '';
+        for (var i = 0; i <= numberOfItems; i++) {
+            var hexColourArrow = rainbowReverse.colourAt(i);
+
+            sReverse += '#' + hexColourArrow + ', ';
+            $('#arrow' + i).css("border-top", '20px solid #' + hexColourArrow);
+
+
+        }
+        $(':radio').change(
+                function(){
+                    $('.choice').text( this.value + ' stars' );
+                }
+        )
+
+        <% if wepo_only %>
+        $('#wepoMessage').modal('show');
+
+        <% end %>
+        <% if first_time %>
+        $('#firstMessage').modal('show');
+
+        <% end %>
+    });
+</script>
+<br />
+<ul id="teacherList">
+  <div id="content">
+    <% data.each_with_index do |employee, index| %>
+        <li id="teacherListItem">
+          <% teacher_entries = Entry.where(:teacher_id => index) %>
+          <% if index % 2 == 0 %>
+              <div class="panel panel-primary accordion teacherInfo">
+          <% else %>
+              <div class="panel panel-primary accordion teacherInfo">
+
+          <% end %>
+          <div id="panel<%=index %>" class="panel-heading">
+            <div id="arrow<%=index %>" align="right" class="arrow-down" style=" float: right;"></div>
+
+            <h3 class="panel-title">
+              <span class="name"><%= employee["Name"] %></span>  <small style="margin-left: 10px; font-size: 13px;"><%= teacher_entries.count %>
+              <% if teacher_entries.count == 1 %>
+                  review
+              <% else %>
+                  reviews
+              <% end %>
+            </small>
+            </h3>
+          </div>
+
+          <div class="panel-body panelContent" style="display: none;">
+
+            <div style="float: left; display: inline; min-width: 280px; padding-right: 10px">
+              <b>Info:</b>
+              <ul id="profileInfo">
+                <% if (employee["Email"].to_s.match(/[a-z0-9]/i)) && (employee["Email"]) != nil %>
+                    <li> Email: <a target="_blank" href="mailto:<%= employee["Email"] %>"><%= employee["Email"] %></a></li>
+                <% end %>
+                <% if (employee["WorkPhone"].to_s.match(/[a-z0-9]/i)) && (employee["WorkPhone"]) != nil %>
+                    <li> Phone: <%= employee["WorkPhone"] %></li>
+                <% end %>
+                <% if (employee["Company"].to_s.match(/[a-z0-9]/i)) && (employee["Company"]) != nil %>
+                    <li> Building: <%= employee["Company"] %></li>
+                <% end %>
+                <% if (employee["Title"].to_s.match(/[a-z0-9]/i)) && (employee["Title"]) != nil %>
+                    <li>Title: <%= employee["Title"] %></li>
+                <% end %>
+                <% if (employee["Location"].to_s.match(/[a-z0-9]/i)) && (employee["Location"]) != nil %>
+                    <li> Location: <%= employee["Location"] %></li>
+                <% end %>
+              </ul>
+            </div>
+
+            <div style="float: right; display: inline">
+              <% if logged_in %>
+                  <form id="reviewForm<%=index %>" class="formReviews" method="post" action="post/create">
+                    Rating: <span class="star-rating">
+  <input type="radio" name="rating" value="1"><i></i>
+  <input type="radio" name="rating" value="2"><i></i>
+  <input type="radio" name="rating" value="3"><i></i>
+  <input type="radio" name="rating" value="4"><i></i>
+  <input type="radio" name="rating" value="5"><i></i>
+</span><br />
+                    <label id="reviewRatingError<%= index %>" class="error">A star rating is required.</label>
+                    <hr />
+                    <input type="hidden" name="teacherID" value="<%= index %>">
+                    <strong class="choice">Choose a rating</strong>
+                    <div id="reviewInputBox<%= index %>" style="display: inline">
+                      Review: <label id="reviewBodyError<%= index %>" class="error">This field is required.</label>
+                      <textarea name="body" id="reviewBody<%=index %>" placeholder="Write a friendly review for <%= employee["Name"] %> here!" class="form-control"></textarea>
+                    </div>
+                    <br />
+                    <input type="submit" id="<%= index %>" class="btn btn-success submitReview" value="Submit">
+                    <span id="loading<%= index %>"></span>
+
+
+
+                  </form>
+              <% else %>
+                  <h2><a href="/auth/google">Log in</a> to make reviews!</h2>
+              <% end %>
+            </div>
+            <CENTER>
+              <div align="center" id="reviews" style="display: inline-block; margin-left: auto; margin-right: auto">
+                <% require './models/entry.rb' %>
+                <ul id="teacherRatings<%= index %>" class="list-group">
+
+                  <% teacher_entries.reverse_each.with_index do |entry, entryIndex| %>
+                      <li class="list-group-item entryList">
+                        <span style="float: left; color: #d50000; display: inline-block" align="left"><%= entry.user.name %></span>
+
+                    <span style="float: right; display: inline-block; color: greenyellow">
+                    <% d = DateTime.parse (entry.created_at.to_s) %>
+                      <%= d.strftime('%A, %B %d, %Y') %> -
+                      <%= d.strftime('%-I:%M:%S %p') %>
+                      </span><br /><br />
+                        <B>Rating:</B><br />
+                        <% entry.rating.times do %>
+                            <div class="reviewRating"></div>
+                        <% end %>
+                        <br />
+                        <b>Review:</b><br /> <%=h entry.body %>
+
+                      </li>
+                  <% end %>
+                </ul>
+
+              </div>
+            </CENTER>
+
+          </div>
+          </div>
+          <br />
+          </div>
+        </li>
+    <% end %>
+  </div>
+</ul>
+
+<% if wepo_only %>
+    <div class="modal fade" id="wepoMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Login Error</h4>
+          </div>
+          <div class="modal-body">
+            This program is only available to Westport students (and teachers since Mr. Dewey needs to grade it). Please <a href="/auth/google">login</a> with your school associated Google account and try again.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% end %>
+<% if first_time %>
+    <div class="modal fade" id="firstMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Welcome!</h4>
+          </div>
+          <div class="modal-body">
+            Welcome to the Westport version of "Rate My Teachers"! This site is a great way to get to know what your teachers are like and to write reviews yourself. As this site is NOT ANONYMOUS, do not write innapropriate or mean reviews. Reviews also CANNOT be deleted for the fun of the site. Enjoy...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% end %>
